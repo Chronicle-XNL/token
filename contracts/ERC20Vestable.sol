@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./VerifiedAccount.sol";
 import "./IERC20Vestable.sol";
 
@@ -28,7 +27,6 @@ import "./IERC20Vestable.sol";
  *     such as with employee grants that are given as compensation.
  */
 abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
-    using SafeMath for uint256;
 
     // Date-related constants for sanity-checking dates to reject obvious erroneous inputs
     // and conversions from seconds to days and years that are more or less leap year-aware.
@@ -317,8 +315,9 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
             // typical token amounts can fit into 90 bits. Scaling using a 32 bits value results in only 125
             // bits before reducing back to 90 bits by dividing. There is plenty of room left, even for token
             // amounts many orders of magnitude greater than mere billions.
-            uint256 vested = grant.amount.mul(effectiveDaysVested).div(vesting.duration);
-            return grant.amount.sub(vested);
+            // uint256 vested = grant.amount.mul(effectiveDaysVested).div(vesting.duration);
+            uint256 vested = (grant.amount * effectiveDaysVested) / vesting.duration;
+            return grant.amount - vested;
         }
     }
 
@@ -334,7 +333,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      */
     function _getAvailableAmount(address grantHolder, uint32 onDay) internal view returns (uint256 amountAvailable) {
         uint256 totalTokens = balanceOf(grantHolder);
-        uint256 vested = totalTokens.sub(_getNotVestedAmount(grantHolder, onDay));
+        uint256 vested = totalTokens -  _getNotVestedAmount(grantHolder, onDay);
         return vested;
     }
 
@@ -379,7 +378,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         uint256 grantAmount = grant.amount;
 
         return (
-        grantAmount.sub(notVestedAmount),
+        grantAmount - notVestedAmount,
         notVestedAmount,
         grantAmount,
         grant.startDay,

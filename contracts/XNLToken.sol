@@ -43,10 +43,8 @@ contract XNLToken is ERC20Vestable, Pausable {
     }
 
     
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
-
-        require(!paused(), "ERC20Pausable: token transfer while paused");
     }
 
     function approve(address spender, uint256 amount) public virtual override whenNotPaused returns (bool) {
