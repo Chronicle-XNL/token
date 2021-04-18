@@ -1,0 +1,16 @@
+{
+  "name": "token-xnl",
+  "version": "0.1",
+  "author": "Marek Tlacbaba",
+  "dependencies": {
+    "@openzeppelin/contracts": "4.0.0"
+  },
+  "devDependencies": {
+    "chai": "4.3.4",
+    "chai-as-promised": "7.1.1",
+    "chai-bn": "0.2.1",
+    "bignumber.js": "9.0.1",
+    "shx": "0.3.3",
+    "bn.js": "5.2.0"
+  }
+}
