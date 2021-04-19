@@ -24,16 +24,6 @@ contract XNLToken is ERC20Vestable, Pausable {
         _mint(_msgSender(), INITIAL_SUPPLY);
     }
 
-        /**
-     * @dev Allow only the owner to burn tokens from the owner's wallet, also decreasing the total
-     * supply. There is no reason for a token holder to EVER call this method directly. It will be
-     * used by the future CPUcoin ecosystem token contract to implement IEO token redemption.
-     */
-    // function burn(uint256 value) onlyIfFundsAvailableNow(msg.sender, value) public override {
-    //     // This is the only place where we ever burn tokens.
-    //     _burn(msg.sender, value);
-    // }
-
     function pause() onlyOwner() external  {
         _pause();
     }
@@ -42,7 +32,6 @@ contract XNLToken is ERC20Vestable, Pausable {
         _unpause();
     }
 
-    
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
     }
@@ -58,10 +47,5 @@ contract XNLToken is ERC20Vestable, Pausable {
     function decreaseAllowance(address spender, uint256 addedValue) public virtual override whenNotPaused returns (bool)  {
         return super.decreaseAllowance(spender, addedValue);
     }
-
-
-    // function mint(address to, uint256 amount) public {
-    //     _mint(to, amount);
-    // }
 
 }

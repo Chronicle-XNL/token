@@ -107,4 +107,17 @@ contract('XNLToken', function ([owner, account1, account2, account3, account4, a
     balance = await this.token.balanceOf(account2);
     balance.should.be.bignumber.equal(zero);
   });
+
+  it("..transfer ownership only to verified account", async function () {
+
+    await this.token.transferOwnership(account1, { from: owner }).should.be.rejectedWith(Error);
+
+    await this.token.registerAccount({ from: account1 });
+
+    await this.token.transferOwnership(account1, { from: owner });
+
+    let newOwner = await this.token.owner();
+    newOwner.should.equal(account1)
+  });
+
 });
