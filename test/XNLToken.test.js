@@ -62,6 +62,10 @@ contract('XNLToken', function ([owner, account1, account2, account3, account4, a
     balance.should.be.bignumber.equal(zero);
   });
 
+  it("..transfer to contract address is forbidden", async function () {
+    await this.token.transfer(this.token.address, amount, { from: owner }).should.be.rejectedWith(Error);
+  });
+
   it("..approval is pausable", async function () {
     await this.token.approve(account1, amount, { from: owner });
     let allowance = await this.token.allowance(owner, account1);

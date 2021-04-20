@@ -1174,6 +1174,7 @@ contract XNLToken is ERC20Vestable, Pausable {
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override whenNotPaused {
+        require(to != address(this), "ERC20: transfer to the contract address");
         super._beforeTokenTransfer(from, to, amount);
     }
 
