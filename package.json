@@ -1,7 +1,9 @@
 {
   "name": "token-xnl",
-  "version": "0.1",
+  "description": "The XNL token",
+  "version": "1.0.0",
   "author": "Marek Tlacbaba",
+  "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts": "4.0.0"
   },

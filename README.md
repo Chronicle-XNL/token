@@ -1,8 +1,8 @@
 # XNL token - ethereum smart contract
 
-Preminted pauseable ERC20 token.
+Preminted pauseable burnable ERC20 token with vesting ability.
 
-The token smart contract was implemented using  [OpenZeppelin library](https://github.com/OpenZeppelin/openzeppelin-solidity).
+The token smart contract was implemented using  [OpenZeppelin library](https://github.com/OpenZeppelin/openzeppelin-solidity) and inspired .
 
 - Symbol: **XNL**
 - Supply: **100,000,000 XNL**
@@ -15,7 +15,7 @@ Implementation with imported contract is in XNLToken.sol and there is also flatt
 - Truffle
 
 ## Prerequisites
-In order to run the Skymap, you will need [Node.js](https://nodejs.org) (tested with version 8.x.x). This will include npm, needed to install dependencies.
+In order to run the project, you will need [Node.js](https://nodejs.org) (tested with version 8.x.x). This will include npm, needed to install dependencies.
 
 ## Installation and Building
 
@@ -61,15 +61,21 @@ In order to run the Skymap, you will need [Node.js](https://nodejs.org) (tested 
 
 
 ## Generating flat version of contract
+Flat version of contract is the easist way how to load contract in Remix-IDE, deploy to ETH network and attach code to deployed contract.
 
 1. Install truffle-flattener.
     ```javascript    
     npm install -g truffle-flattener -g
     ```
 
-2. Delete old version of SkymapToken.flat.sol
+2. Delete old version of XNLToken.flat.sol
 
 3. Run flattener
     ```javascript
-    truffle-flattener contracts/SkymapToken.sol >> contracts/SkymapToken.flat.sol
+    truffle-flattener contracts/XNLToken.sol >> contracts/XNLToken.flat.sol
     ```
+4. Leave only first occurance of this line in flattend file 
+
+    // SPDX-License-Identifier: MIT
+
+    and remove all others
