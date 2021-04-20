@@ -15,12 +15,9 @@ import "./ERC20Vestable.sol";
  
 contract XNLToken is ERC20Vestable, Pausable {
 
-    string public constant SYMBOL = "XNL";
-    string public constant NAME = "Chronicals";
-    uint8 public constant DECIMALS = 18;
-    uint public INITIAL_SUPPLY = 100000000 * (uint(10) ** DECIMALS); // 350,000,000 SKYM
+    uint public INITIAL_SUPPLY = 100000000 * (uint(10) ** 18); // 100,000,000 XNL
 
-    constructor() ERC20(NAME, SYMBOL) {
+    constructor() ERC20("Chronical","XNL") {
         _mint(_msgSender(), INITIAL_SUPPLY);
     }
 
