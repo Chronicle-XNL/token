@@ -877,42 +877,6 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         return _vestingSchedules[account].isValid;
     }
 
-    /*
-     * @dev returns all information about the vesting schedule directly associated with the given
-     * account. This can be used to double check that a uniform grantor has been set up with a
-     * correct vesting schedule. Also, recipients of standard (non-uniform) grants can use this.
-     * This method is only callable by the account holder or a grantor, so this is mainly intended
-     * for administrative use.
-     *
-     * Holders of uniform grants must use vestingAsOf() to view their vesting schedule, as it is
-     * stored in the grantor account.
-     *
-     * @param grantHolder = The address to do this for.
-     *   the special value 0 to indicate today.
-     * @return = A tuple with the following values:
-     *   vestDuration = grant duration in days.
-     *   cliffDuration = duration of the cliff.
-     *   vestIntervalDays = number of days between vesting periods.
-     */
-    function getIntrinsicVestingSchedule(address grantHolder)
-    public
-    view
-    override
-    onlyOwner
-    returns (
-        uint32 vestDuration,
-        uint32 cliffDuration,
-        uint32 vestIntervalDays
-    )
-    {
-        return (
-        _vestingSchedules[grantHolder].duration,
-        _vestingSchedules[grantHolder].cliffDuration,
-        _vestingSchedules[grantHolder].interval
-        );
-    }
-
-
     // =========================================================================
     // === Token grants (general-purpose)
     // === Methods to be used for administratively creating one-off token grants with vesting schedules.
