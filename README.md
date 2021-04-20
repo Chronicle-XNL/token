@@ -2,7 +2,8 @@
 
 Preminted pauseable burnable ERC20 token with vesting ability.
 
-The token smart contract was implemented using  [OpenZeppelin library](https://github.com/OpenZeppelin/openzeppelin-solidity) and inspired .
+The token smart contract was implemented using [OpenZeppelin library](https://github.com/OpenZeppelin/openzeppelin-contracts) 
+and vesting feature is inspired by [CPUcoin](https://github.com/cpu-coin/CPUcoin).
 
 - Symbol: **XNL**
 - Supply: **100,000,000 XNL**

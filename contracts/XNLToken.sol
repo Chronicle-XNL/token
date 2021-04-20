@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "../node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "../node_modules/@openzeppelin/contracts/security/Pausable.sol";
 import "./ERC20Vestable.sol";
 

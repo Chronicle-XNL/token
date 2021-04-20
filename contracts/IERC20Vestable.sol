@@ -4,15 +4,6 @@ pragma solidity ^0.8.0;
 
 interface IERC20Vestable {
 
-    function getIntrinsicVestingSchedule(address grantHolder)
-    external
-    view
-    returns (
-        uint32 cliffDuration,
-        uint32 vestDuration,
-        uint32 vestIntervalDays
-    );
-
     function grantVestingTokens(
         address beneficiary,
         uint256 totalAmount,
