@@ -33,9 +33,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
     uint32 private constant THOUSAND_YEARS_DAYS = 365243;                   /* See https://www.timeanddate.com/date/durationresult.html?m1=1&d1=1&y1=2000&m2=1&d2=1&y2=3000 */
     uint32 private constant TEN_YEARS_DAYS = THOUSAND_YEARS_DAYS / 100;     /* Includes leap years (though it doesn't really matter) */
     uint32 private constant SECONDS_PER_DAY = 24 * 60 * 60;                 /* 86400 seconds in a day */
-    uint32 private constant JAN_1_2000_SECONDS = 946684800;                 /* Saturday, January 1, 2000 0:00:00 (GMT) (see https://www.epochconverter.com/) */
-    uint32 private constant JAN_1_2000_DAYS = JAN_1_2000_SECONDS / SECONDS_PER_DAY;
-    uint32 private constant JAN_1_3000_DAYS = JAN_1_2000_DAYS + THOUSAND_YEARS_DAYS;
+    uint32 private constant JAN_1_3000_DAYS = 4102444800;  /* Wednesday, January 1, 2100 0:00:00 (GMT) (see https://www.epochconverter.com/) */
 
     struct vestingSchedule {
         bool isValid;               /* true if an entry exists and is valid */
@@ -144,7 +142,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         // Check for valid vestingAmount
         require(
             vestingAmount <= totalAmount && vestingAmount > 0
-            && startDay >= JAN_1_2000_DAYS && startDay < JAN_1_3000_DAYS,
+            && startDay >= block.timestamp && startDay < JAN_1_3000_DAYS,
             "invalid vesting params");
 
         // Make sure the vesting schedule we are about to use is valid.
