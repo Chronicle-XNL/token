@@ -296,8 +296,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      */
     function _getAvailableAmount(address grantHolder, uint32 onDay) internal view returns (uint256 amountAvailable) {
         uint256 totalTokens = balanceOf(grantHolder);
-        uint256 vested = totalTokens -  _getNotVestedAmount(grantHolder, onDay);
-        return vested;
+        return totalTokens - _getNotVestedAmount(grantHolder, onDay);
     }
 
     /*
