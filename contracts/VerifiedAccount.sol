@@ -22,10 +22,9 @@ abstract contract VerifiedAccount is ERC20, Ownable {
      * may require the target account to be a registered account, to protect the system from getting into a
      * state where administration or a large amount of funds can become forever inaccessible.
      */
-    function registerAccount() public returns (bool ok) {
+    function registerAccount() public {
         _isRegistered[msg.sender] = true;
         emit AccountRegistered(msg.sender);
-        return true;
     }
 
     function isRegistered(address account) public view returns (bool ok) {
