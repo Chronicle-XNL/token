@@ -50,17 +50,17 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     // =========================================================================
 
     function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
-        transfer(to, value);
+        require(transfer(to, value), "error in transfer");
         return true;
     }
 
     function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool ok) {
-        approve(spender, value);
+        require(approve(spender, value), "error in approve");
         return true;
     }
 
     function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
-        transferFrom(from, to, value);
+        require(transferFrom(from, to, value), "error in transferFrom");
         return true;
     }
 
