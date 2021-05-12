@@ -63,7 +63,6 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * @dev This one-time operation permanently establishes a vesting schedule in the given account.
      *
      * For standard grants, this establishes the vesting schedule in the beneficiary's account.
-     * For uniform grants, this establishes the vesting schedule in the linked grantor's account.
      *
      * @param vestingLocation = Account into which to store the vesting schedule. Can be the account
      *   of the beneficiary (for one-off grants) or the account of the grantor (for uniform grants
@@ -198,10 +197,10 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         require(!_tokenGrants[beneficiary].isActive, "grant already exists");
 
         // The vesting schedule is unique to this wallet and so will be stored here,
-        _setVestingSchedule(beneficiary, cliffDuration, duration, interval);
+        require(_setVestingSchedule(beneficiary, cliffDuration, duration, interval), "error in establishing a vesting schedule");
 
         // Issue grantor tokens to the beneficiary, using beneficiary's own vesting schedule.
-        _grantVestingTokens(beneficiary, totalAmount, vestingAmount, startDay, beneficiary, msg.sender);
+        require(_grantVestingTokens(beneficiary, totalAmount, vestingAmount, startDay, beneficiary, msg.sender), "error in granting tokens");
 
         return true;
     }
