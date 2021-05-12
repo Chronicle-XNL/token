@@ -50,6 +50,7 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     // =========================================================================
 
     function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
+        if(value == 0) return false;
         require(transfer(to, value), "error in transfer");
         return true;
     }
@@ -60,6 +61,7 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     }
 
     function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
+        if(value == 0) return false;
         require(transferFrom(from, to, value), "error in transferFrom");
         return true;
     }
