@@ -576,7 +576,7 @@ abstract contract Ownable is Context {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 
 
@@ -596,10 +596,9 @@ abstract contract VerifiedAccount is ERC20, Ownable {
      * may require the target account to be a registered account, to protect the system from getting into a
      * state where administration or a large amount of funds can become forever inaccessible.
      */
-    function registerAccount() public returns (bool ok) {
+    function registerAccount() public {
         _isRegistered[msg.sender] = true;
         emit AccountRegistered(msg.sender);
-        return true;
     }
 
     function isRegistered(address account) public view returns (bool ok) {
@@ -625,17 +624,19 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     // =========================================================================
 
     function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
-        transfer(to, value);
+        if(value == 0) return false;
+        require(transfer(to, value), "error in transfer");
         return true;
     }
 
     function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool ok) {
-        approve(spender, value);
+        require(approve(spender, value), "error in approve");
         return true;
     }
 
     function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
-        transferFrom(from, to, value);
+        if(value == 0) return false;
+        require(transferFrom(from, to, value), "error in transferFrom");
         return true;
     }
 
@@ -657,7 +658,7 @@ abstract contract VerifiedAccount is ERC20, Ownable {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 interface IERC20Vestable {
 
@@ -717,7 +718,7 @@ interface IERC20Vestable {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 
 
@@ -749,9 +750,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
     uint32 private constant THOUSAND_YEARS_DAYS = 365243;                   /* See https://www.timeanddate.com/date/durationresult.html?m1=1&d1=1&y1=2000&m2=1&d2=1&y2=3000 */
     uint32 private constant TEN_YEARS_DAYS = THOUSAND_YEARS_DAYS / 100;     /* Includes leap years (though it doesn't really matter) */
     uint32 private constant SECONDS_PER_DAY = 24 * 60 * 60;                 /* 86400 seconds in a day */
-    uint32 private constant JAN_1_2000_SECONDS = 946684800;                 /* Saturday, January 1, 2000 0:00:00 (GMT) (see https://www.epochconverter.com/) */
-    uint32 private constant JAN_1_2000_DAYS = JAN_1_2000_SECONDS / SECONDS_PER_DAY;
-    uint32 private constant JAN_1_3000_DAYS = JAN_1_2000_DAYS + THOUSAND_YEARS_DAYS;
+    uint32 private constant JAN_1_3000_DAYS = 4102444800;  /* Wednesday, January 1, 2100 0:00:00 (GMT) (see https://www.epochconverter.com/) */
 
     struct vestingSchedule {
         bool isValid;               /* true if an entry exists and is valid */
@@ -779,7 +778,6 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * @dev This one-time operation permanently establishes a vesting schedule in the given account.
      *
      * For standard grants, this establishes the vesting schedule in the beneficiary's account.
-     * For uniform grants, this establishes the vesting schedule in the linked grantor's account.
      *
      * @param vestingLocation = Account into which to store the vesting schedule. Can be the account
      *   of the beneficiary (for one-off grants) or the account of the grantor (for uniform grants
@@ -861,7 +859,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         // Check for valid vestingAmount
         require(
             vestingAmount <= totalAmount && vestingAmount > 0
-            && startDay >= JAN_1_2000_DAYS && startDay < JAN_1_3000_DAYS,
+            && startDay >= this.today() && startDay < JAN_1_3000_DAYS,
             "invalid vesting params");
 
         // Make sure the vesting schedule we are about to use is valid.
@@ -914,10 +912,10 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         require(!_tokenGrants[beneficiary].isActive, "grant already exists");
 
         // The vesting schedule is unique to this wallet and so will be stored here,
-        _setVestingSchedule(beneficiary, cliffDuration, duration, interval);
+        require(_setVestingSchedule(beneficiary, cliffDuration, duration, interval), "error in establishing a vesting schedule");
 
         // Issue grantor tokens to the beneficiary, using beneficiary's own vesting schedule.
-        _grantVestingTokens(beneficiary, totalAmount, vestingAmount, startDay, beneficiary, msg.sender);
+        require(_grantVestingTokens(beneficiary, totalAmount, vestingAmount, startDay, beneficiary, msg.sender), "error in granting tokens");
 
         return true;
     }
@@ -1013,8 +1011,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      */
     function _getAvailableAmount(address grantHolder, uint32 onDay) internal view returns (uint256 amountAvailable) {
         uint256 totalTokens = balanceOf(grantHolder);
-        uint256 vested = totalTokens -  _getNotVestedAmount(grantHolder, onDay);
-        return vested;
+        return totalTokens - _getNotVestedAmount(grantHolder, onDay);
     }
 
     /*
@@ -1146,7 +1143,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
 
 
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 
 
