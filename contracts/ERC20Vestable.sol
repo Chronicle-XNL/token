@@ -45,9 +45,9 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
     struct tokenGrant {
         bool isActive;              /* true if this vesting entry is active and in-effect entry. */
         uint32 startDay;            /* Start day of the grant, in days since the UNIX epoch (start of day). */
-        uint256 amount;             /* Total number of tokens that vest. */
         address vestingLocation;    /* Address of wallet that is holding the vesting schedule. */
         address grantor;            /* Grantor that made the grant */
+        uint256 amount;             /* Total number of tokens that vest. */
     }
 
     mapping(address => vestingSchedule) private _vestingSchedules;
@@ -156,9 +156,9 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         _tokenGrants[beneficiary] = tokenGrant(
             true/*isActive*/,
             startDay,
-            vestingAmount,
             vestingLocation, /* The wallet address where the vesting schedule is kept. */
-            grantor             /* The account that performed the grant (where revoked funds would be sent) */
+            grantor,             /* The account that performed the grant (where revoked funds would be sent) */
+            vestingAmount
         );
 
         // Emit the event and return success.
