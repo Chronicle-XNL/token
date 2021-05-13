@@ -142,7 +142,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         // Check for valid vestingAmount
         require(
             vestingAmount <= totalAmount && vestingAmount > 0
-            && startDay >= block.timestamp && startDay < JAN_1_3000_DAYS,
+            && startDay >= this.today() && startDay < JAN_1_3000_DAYS,
             "invalid vesting params");
 
         // Make sure the vesting schedule we are about to use is valid.
