@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
-import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./VerifiedAccount.sol";
 import "./IERC20Vestable.sol";
 
@@ -33,9 +33,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
     uint32 private constant THOUSAND_YEARS_DAYS = 365243;                   /* See https://www.timeanddate.com/date/durationresult.html?m1=1&d1=1&y1=2000&m2=1&d2=1&y2=3000 */
     uint32 private constant TEN_YEARS_DAYS = THOUSAND_YEARS_DAYS / 100;     /* Includes leap years (though it doesn't really matter) */
     uint32 private constant SECONDS_PER_DAY = 24 * 60 * 60;                 /* 86400 seconds in a day */
-    uint32 private constant JAN_1_2000_SECONDS = 946684800;                 /* Saturday, January 1, 2000 0:00:00 (GMT) (see https://www.epochconverter.com/) */
-    uint32 private constant JAN_1_2000_DAYS = JAN_1_2000_SECONDS / SECONDS_PER_DAY;
-    uint32 private constant JAN_1_3000_DAYS = JAN_1_2000_DAYS + THOUSAND_YEARS_DAYS;
+    uint32 private constant JAN_1_3000_DAYS = 4102444800;  /* Wednesday, January 1, 2100 0:00:00 (GMT) (see https://www.epochconverter.com/) */
 
     struct vestingSchedule {
         bool isValid;               /* true if an entry exists and is valid */
@@ -63,7 +61,6 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * @dev This one-time operation permanently establishes a vesting schedule in the given account.
      *
      * For standard grants, this establishes the vesting schedule in the beneficiary's account.
-     * For uniform grants, this establishes the vesting schedule in the linked grantor's account.
      *
      * @param vestingLocation = Account into which to store the vesting schedule. Can be the account
      *   of the beneficiary (for one-off grants) or the account of the grantor (for uniform grants
@@ -145,7 +142,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         // Check for valid vestingAmount
         require(
             vestingAmount <= totalAmount && vestingAmount > 0
-            && startDay >= JAN_1_2000_DAYS && startDay < JAN_1_3000_DAYS,
+            && startDay >= this.today() && startDay < JAN_1_3000_DAYS,
             "invalid vesting params");
 
         // Make sure the vesting schedule we are about to use is valid.
@@ -198,10 +195,10 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         require(!_tokenGrants[beneficiary].isActive, "grant already exists");
 
         // The vesting schedule is unique to this wallet and so will be stored here,
-        _setVestingSchedule(beneficiary, cliffDuration, duration, interval);
+        require(_setVestingSchedule(beneficiary, cliffDuration, duration, interval), "error in establishing a vesting schedule");
 
         // Issue grantor tokens to the beneficiary, using beneficiary's own vesting schedule.
-        _grantVestingTokens(beneficiary, totalAmount, vestingAmount, startDay, beneficiary, msg.sender);
+        require(_grantVestingTokens(beneficiary, totalAmount, vestingAmount, startDay, beneficiary, msg.sender), "error in granting tokens");
 
         return true;
     }
@@ -272,6 +269,10 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
             // Compute the exact number of days vested.
             uint32 daysVested = onDay - grant.startDay;
             // Adjust result rounding down to take into consideration the interval.
+            // Examples for vesting interval = 30 days
+            // Example 1 - daysVested = 15: (15 / 30) * 30 = 0 * 30 = 0; 
+            // Example 2 - daysVested = 30: (30 / 30) * 30 = 1 * 30 = 30; 
+            // Example 3 - daysVested = 65: (65 / 30) * 30 = 2 * 30 = 60; 
             uint32 effectiveDaysVested = (daysVested / vesting.interval) * vesting.interval;
 
             // Compute the fraction vested from schedule using 224.32 fixed point math for date range ratio.
@@ -297,8 +298,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      */
     function _getAvailableAmount(address grantHolder, uint32 onDay) internal view returns (uint256 amountAvailable) {
         uint256 totalTokens = balanceOf(grantHolder);
-        uint256 vested = totalTokens -  _getNotVestedAmount(grantHolder, onDay);
-        return vested;
+        return totalTokens - _getNotVestedAmount(grantHolder, onDay);
     }
 
     /*

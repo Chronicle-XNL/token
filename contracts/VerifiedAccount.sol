@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 
-import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 abstract contract VerifiedAccount is ERC20, Ownable {
 
@@ -22,10 +22,9 @@ abstract contract VerifiedAccount is ERC20, Ownable {
      * may require the target account to be a registered account, to protect the system from getting into a
      * state where administration or a large amount of funds can become forever inaccessible.
      */
-    function registerAccount() public returns (bool ok) {
+    function registerAccount() public {
         _isRegistered[msg.sender] = true;
         emit AccountRegistered(msg.sender);
-        return true;
     }
 
     function isRegistered(address account) public view returns (bool ok) {
@@ -51,17 +50,19 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     // =========================================================================
 
     function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
-        transfer(to, value);
+        if(value == 0) return false;
+        require(transfer(to, value), "error in transfer");
         return true;
     }
 
     function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool ok) {
-        approve(spender, value);
+        require(approve(spender, value), "error in approve");
         return true;
     }
 
     function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
-        transferFrom(from, to, value);
+        if(value == 0) return false;
+        require(transferFrom(from, to, value), "error in transferFrom");
         return true;
     }
 

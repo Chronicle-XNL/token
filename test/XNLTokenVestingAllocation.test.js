@@ -13,7 +13,7 @@ contract('XNLTokenVesting', function ([owner, account1, account2, account3, acco
 
   const checkBalance = async (token, address, expected) => {
     let balance = await token.balanceOf(address);
-    console.log('BalanceOf [', address, '] with expected [', expected.toString(), ']: ', balance.toString())
+    // console.log('BalanceOf [', address, '] with expected [', expected.toString(), ']: ', balance.toString())
     balance.should.be.bignumber.equal(expected);
   }
 
@@ -30,7 +30,7 @@ contract('XNLTokenVesting', function ([owner, account1, account2, account3, acco
     res.amountVested.should.be.bignumber.most(expectedMax);
   }
 
-  const dateTGE = 18757;
+  const dateTGE = Math.floor(new Date()/8.64e7);
 
   const zero = new BN(0);
 
