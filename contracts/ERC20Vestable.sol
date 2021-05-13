@@ -269,7 +269,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
             // Compute the exact number of days vested.
             uint32 daysVested = onDay - grant.startDay;
             // Adjust result rounding down to take into consideration the interval.
-            uint32 effectiveDaysVested = daysVested * vesting.interval / vesting.interval;
+            uint32 effectiveDaysVested = (daysVested / vesting.interval) * vesting.interval;
 
             // Compute the fraction vested from schedule using 224.32 fixed point math for date range ratio.
             // Note: This is safe in 256-bit math because max value of X billion tokens = X*10^27 wei, and
