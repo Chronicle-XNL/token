@@ -762,9 +762,9 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
     struct tokenGrant {
         bool isActive;              /* true if this vesting entry is active and in-effect entry. */
         uint32 startDay;            /* Start day of the grant, in days since the UNIX epoch (start of day). */
-        uint256 amount;             /* Total number of tokens that vest. */
         address vestingLocation;    /* Address of wallet that is holding the vesting schedule. */
         address grantor;            /* Grantor that made the grant */
+        uint256 amount;             /* Total number of tokens that vest. */
     }
 
     mapping(address => vestingSchedule) private _vestingSchedules;
@@ -873,9 +873,9 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         _tokenGrants[beneficiary] = tokenGrant(
             true/*isActive*/,
             startDay,
-            vestingAmount,
             vestingLocation, /* The wallet address where the vesting schedule is kept. */
-            grantor             /* The account that performed the grant (where revoked funds would be sent) */
+            grantor,             /* The account that performed the grant (where revoked funds would be sent) */
+            vestingAmount
         );
 
         // Emit the event and return success.
@@ -986,6 +986,10 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
             // Compute the exact number of days vested.
             uint32 daysVested = onDay - grant.startDay;
             // Adjust result rounding down to take into consideration the interval.
+            // Examples for vesting interval = 30 days
+            // Example 1 - daysVested = 15: (15 / 30) * 30 = 0 * 30 = 0; 
+            // Example 2 - daysVested = 30: (30 / 30) * 30 = 1 * 30 = 30; 
+            // Example 3 - daysVested = 65: (65 / 30) * 30 = 2 * 30 = 60; 
             uint32 effectiveDaysVested = (daysVested / vesting.interval) * vesting.interval;
 
             // Compute the fraction vested from schedule using 224.32 fixed point math for date range ratio.
