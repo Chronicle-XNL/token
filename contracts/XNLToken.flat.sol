@@ -601,11 +601,11 @@ abstract contract VerifiedAccount is ERC20, Ownable {
         emit AccountRegistered(msg.sender);
     }
 
-    function isRegistered(address account) public view returns (bool ok) {
+    function isRegistered(address account) public view returns (bool) {
         return _isRegistered[account];
     }
 
-    function _accountExists(address account) internal view returns (bool exists) {
+    function _accountExists(address account) internal view returns (bool) {
         return account == msg.sender || _isRegistered[account];
     }
 
@@ -623,18 +623,18 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     // === Safe ERC20 methods
     // =========================================================================
 
-    function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
+    function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool) {
         if(value == 0) return false;
         require(transfer(to, value), "error in transfer");
         return true;
     }
 
-    function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool ok) {
+    function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool) {
         require(approve(spender, value), "error in approve");
         return true;
     }
 
-    function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
+    function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool) {
         if(value == 0) return false;
         require(transferFrom(from, to, value), "error in transferFrom");
         return true;
@@ -792,7 +792,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         uint32 cliffDuration, 
         uint32 duration, 
         uint32 interval
-        ) internal returns (bool ok) {
+        ) internal returns (bool) {
 
         // Check for a valid vesting schedule given (disallow absurd values to reject likely bad input).
         require(
@@ -820,7 +820,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         return true;
     }
 
-    function _hasVestingSchedule(address account) internal view returns (bool ok) {
+    function _hasVestingSchedule(address account) internal view returns (bool) {
         return _vestingSchedules[account].isValid;
     }
 
@@ -851,7 +851,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         address vestingLocation,
         address grantor
     )
-    internal returns (bool ok)
+    internal returns (bool)
     {
         // Make sure no prior grant is in effect.
         require(!_tokenGrants[beneficiary].isActive, "grant already exists");
@@ -907,7 +907,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         uint32 duration,
         uint32 cliffDuration,
         uint32 interval
-    ) public onlyOwner override returns (bool ok) {
+    ) public onlyOwner override returns (bool) {
         // Make sure no prior vesting schedule has been set.
         require(!_tokenGrants[beneficiary].isActive, "grant already exists");
 
@@ -931,7 +931,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
         uint32 duration, 
         uint32 cliffDuration, 
         uint32 interval
-        ) public onlyOwner onlyExistingAccount(beneficiary) returns (bool ok) {
+        ) public onlyOwner onlyExistingAccount(beneficiary) returns (bool) {
 
         return grantVestingTokens(
             beneficiary, totalAmount, vestingAmount,
@@ -946,11 +946,11 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
     /**
      * @dev returns the day number of the current day, in days since the UNIX epoch.
      */
-    function today() public view override returns (uint32 dayNumber) {
+    function today() public view override returns (uint32) {
         return uint32(block.timestamp / SECONDS_PER_DAY);
     }
 
-    function _effectiveDay(uint32 onDayOrToday) internal view returns (uint32 dayNumber) {
+    function _effectiveDay(uint32 onDayOrToday) internal view returns (uint32) {
         return onDayOrToday == 0 ? today() : onDayOrToday;
     }
 
@@ -963,7 +963,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * @param onDayOrToday = The day to check for, in days since the UNIX epoch. Can pass
      *   the special value 0 to indicate today.
      */
-    function _getNotVestedAmount(address grantHolder, uint32 onDayOrToday) internal view returns (uint256 amountNotVested) {
+    function _getNotVestedAmount(address grantHolder, uint32 onDayOrToday) internal view returns (uint256) {
         tokenGrant storage grant = _tokenGrants[grantHolder];
         vestingSchedule storage vesting = _vestingSchedules[grant.vestingLocation];
         uint32 onDay = _effectiveDay(onDayOrToday);
@@ -1013,7 +1013,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * @param grantHolder = The account to check.
      * @param onDay = The day to check for, in days since the UNIX epoch.
      */
-    function _getAvailableAmount(address grantHolder, uint32 onDay) internal view returns (uint256 amountAvailable) {
+    function _getAvailableAmount(address grantHolder, uint32 onDay) internal view returns (uint256) {
         uint256 totalTokens = balanceOf(grantHolder);
         return totalTokens - _getNotVestedAmount(grantHolder, onDay);
     }
@@ -1105,7 +1105,7 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * @param amount = The required amount of vested funds.
      * @param onDay = The day to check for, in days since the UNIX epoch.
      */
-    function _fundsAreAvailableOn(address account, uint256 amount, uint32 onDay) internal view returns (bool ok) {
+    function _fundsAreAvailableOn(address account, uint256 amount, uint32 onDay) internal view returns (bool) {
         return (amount <= _getAvailableAmount(account, onDay));
     }
 
@@ -1131,14 +1131,14 @@ abstract contract ERC20Vestable is ERC20, IERC20Vestable, VerifiedAccount {
      * prevent spending held but non-vested tokens. Note that transferFrom() does NOT have this
      * additional check because approved funds come from an already set-aside allowance, not from the wallet.
      */
-    function transfer(address to, uint256 value) public override onlyIfFundsAvailableNow(msg.sender, value) returns (bool ok) {
+    function transfer(address to, uint256 value) public override onlyIfFundsAvailableNow(msg.sender, value) returns (bool) {
         return super.transfer(to, value);
     }
 
     /**
      * @dev Additional available funds check to prevent spending held but non-vested tokens.
      */
-    function approve(address spender, uint256 value) public override virtual onlyIfFundsAvailableNow(msg.sender, value) returns (bool ok) {
+    function approve(address spender, uint256 value) public override virtual onlyIfFundsAvailableNow(msg.sender, value) returns (bool) {
         return super.approve(spender, value);
     }
 }
