@@ -27,11 +27,11 @@ abstract contract VerifiedAccount is ERC20, Ownable {
         emit AccountRegistered(msg.sender);
     }
 
-    function isRegistered(address account) public view returns (bool ok) {
+    function isRegistered(address account) public view returns (bool) {
         return _isRegistered[account];
     }
 
-    function _accountExists(address account) internal view returns (bool exists) {
+    function _accountExists(address account) internal view returns (bool) {
         return account == msg.sender || _isRegistered[account];
     }
 
@@ -49,18 +49,18 @@ abstract contract VerifiedAccount is ERC20, Ownable {
     // === Safe ERC20 methods
     // =========================================================================
 
-    function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
+    function safeTransfer(address to, uint256 value) public onlyExistingAccount(to) returns (bool) {
         if(value == 0) return false;
         require(transfer(to, value), "error in transfer");
         return true;
     }
 
-    function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool ok) {
+    function safeApprove(address spender, uint256 value) public onlyExistingAccount(spender) returns (bool) {
         require(approve(spender, value), "error in approve");
         return true;
     }
 
-    function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool ok) {
+    function safeTransferFrom(address from, address to, uint256 value) public onlyExistingAccount(to) returns (bool) {
         if(value == 0) return false;
         require(transferFrom(from, to, value), "error in transferFrom");
         return true;
