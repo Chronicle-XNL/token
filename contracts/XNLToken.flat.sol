@@ -1162,7 +1162,7 @@ contract XNLToken is ERC20Vestable, Pausable {
 
     uint public INITIAL_SUPPLY = 100000000 * (uint(10) ** 18); // 100,000,000 XNL
 
-    constructor() ERC20("Chronical","XNL") {
+    constructor() ERC20("Chronicle","XNL") {
         _mint(_msgSender(), INITIAL_SUPPLY);
     }
 
