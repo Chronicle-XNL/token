@@ -74,6 +74,7 @@ Flat version of contract is the easist way how to load contract in Remix-IDE, de
 3. Run flattener
     ```javascript
     truffle-flattener contracts/XNLToken.sol >> contracts/XNLToken.flat.sol
+    truffle-flattener contracts/XNLDistribution.sol >> contracts/XNLDistribution.flat.sol
     ```
 4. Leave only first occurance of this line in flattend file 
 

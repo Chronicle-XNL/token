@@ -8,7 +8,7 @@ require('chai')
   .should();
 
 const epoch = new Date('1970-1-1')
-const dateTGE = Math.floor(new Date('2021-09-16')/8.64e7);
+const dateTGE = Math.floor(new Date('2021-09-17')/8.64e7);
 
 
 contract('XNLTokenVesting', function ([owner, account1, account2, account3, account4, account5, account6, account7, account8, account9, _]) {
@@ -26,7 +26,7 @@ contract('XNLTokenVesting', function ([owner, account1, account2, account3, acco
   const checkVesting = async (token, address, day, expected) => {
     let res = await token.vestingAsOf(day, { from: address });
     
-    console.log(`${addDays(epoch, day).toISOString().split('T')[0]}, ${day - dateTGE}, ${web3.utils.fromWei(res.amountVested)}, ${web3.utils.fromWei(res.amountNotVested)}`)
+    console.log(`${day}: ${addDays(epoch, day).toISOString().split('T')[0]}, ${day - dateTGE}, ${web3.utils.fromWei(res.amountVested)}, ${web3.utils.fromWei(res.amountNotVested)}`)
     res.amountVested.should.be.bignumber.equal(expected);
   }
 
@@ -96,6 +96,27 @@ contract('XNLTokenVesting', function ([owner, account1, account2, account3, acco
   });
 
   it("...seed round tokens (11,200,000) are distibuted 15% unlocked and then 15% released every 3 months and in the end 10% manually", async function () {
+    const seed1 = new BN(`1000000000000000000000000`);
+    const seed1Vested = new BN(`1000000000000000000000000`)
+    const seed1Interval1 = new BN(`1000000000000000000000000`);
+
+    await this.token.grantVestingTokens(
+      account1, seed1, seed1Vested, 18887, 30,  0, 30,
+      { from: owner }
+    );
+
+    await checkBalance(this.token, account1, seed1);
+
+    for (let index = 0; index < 45; index++) {
+      if (index < 30) {
+        await checkVesting(this.token, account1, dateTGE + index, zero);
+      } else {
+        await checkVesting(this.token, account1, dateTGE + index, seed1Interval1);
+      } 
+    }
+  });
+
+  it("...seed round tokens (11,200,000) are distibuted 15% unlocked and then 15% released every 3 months and in the end 10% manually", async function () {
     const seed1 = new BN(`9000000${ZEROS}`)
     const seed1Vested = new BN(`750000${ZEROS}`)
     const seed1Interval1 = new BN(`150000000000000000000000`);
@@ -113,16 +134,16 @@ contract('XNLTokenVesting', function ([owner, account1, account2, account3, acco
     const seed2Interval5 = new BN(`999999750000000000000000`);
 
     await this.token.grantVestingTokens(
-      account1, seed1, seed1Vested, dateTGE, 450, 0, 90,
+      account1, seed1Vested, seed1Vested, dateTGE, 450,  0, 90,
       { from: owner }
     );
     await this.token.grantVestingTokens(
-      account2, seed2, seed2Vested, dateTGE, 450, 0, 90,
+      account2, seed2Vested, seed2Vested, dateTGE, 450, 0, 90,
       { from: owner }
     );
 
-    await checkBalance(this.token, account1, seed1);
-    await checkBalance(this.token, account2, seed2);
+    await checkBalance(this.token, account1, seed1Vested);
+    await checkBalance(this.token, account2, seed2Vested);
 
     for (let index = 0; index < 451; index++) {
       if (index < 90) {
