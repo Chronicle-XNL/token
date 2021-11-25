@@ -7,7 +7,7 @@ require('chai')
   .use(require('chai-bn')(BN))
   .should();
 
-const epoch = new Date('1970-1-1')
+const epoch = new Date(0)
 const dateTGE = Math.floor(new Date('2021-09-17')/8.64e7);
 
 
@@ -358,6 +358,39 @@ contract('XNLTokenVesting', function ([owner, account1, account2, account3, acco
       }
     }
   });
+
+  it("..individual advisor tokens (5,000,000) are distibuted 12 months after TGE", async function () {
+    const allocated1 = '100000000000000000000000';
+    const interval1 = '20000000000000000000000';
+    const interval2 = '40000000000000000000000';
+    const interval3 = '60000000000000000000000';
+    const interval4 = '80000000000000000000000';
+    
+    const dateAdvisor1 = 19252; // 2022-09-17;
+    const dateAdvisor1Start = 19162; //2022-06-19;
+    console.log('Start date: ', dateAdvisor1)
+    await this.token.grantVestingTokens(
+      account1, allocated1, allocated1, dateAdvisor1Start, 450, 0, 90,
+      { from: owner }
+    );
+    await checkBalance(this.token, account1, allocated1);
+    for (let index = 0; index < 460; index++) {
+      if (index < 90) {
+        await checkVesting(this.token, account1, dateAdvisor1Start + index, zero);
+      } else if (index < 180) {
+        await checkVesting(this.token, account1, dateAdvisor1Start + index, interval1);
+      } else if (index < 270) {
+        await checkVesting(this.token, account1, dateAdvisor1Start + index, interval2);
+      } else if (index < 360) {
+        await checkVesting(this.token, account1, dateAdvisor1Start + index, interval3);
+      } else if (index < 450) {
+        await checkVesting(this.token, account1, dateAdvisor1Start + index, interval4);
+      } else {
+        await checkVesting(this.token, account1, dateAdvisor1Start + index, allocated1);
+      }
+    }
+  });
+
 
   it("..community tokens (17,000,000) are distibuted, 1 month cliff, then 8.33% released every 1 month for 12months", async function () {
     const allocated = new BN('17000000000000000000000000');
